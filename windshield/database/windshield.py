@@ -25,4 +25,5 @@ def create_windshield(data: WindshieldData, connection: sqlite3.Connection) -> N
     VALUES (?, ?, ?, ?, ?, ?, ?);
     """, (data.brand, data.model, data.year, data.sensor, data.camera, data.heat, data.eurocode,))
     connection.commit()
+    logger.info("Windshield inserted into database.")
       
