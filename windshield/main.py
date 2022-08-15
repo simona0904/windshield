@@ -25,7 +25,8 @@ def parse_arguments():
     # se creaza argumentele pt comanda create-windshield.
     create_parser.add_argument("--brand", required=True)
     create_parser.add_argument("--model", required=True, help="modelul autoturismului")
-    create_parser.add_argument("--year", required=True, type=int, help="an intre 1960 si anul curent")
+    create_parser.add_argument("--start-year", required=True, type=int, help="an intre 1960 si anul curent")
+    create_parser.add_argument("--end-year", type=int, help="an intre 1960 si anul curent")
     create_parser.add_argument("--sensor", action="store_true")
     create_parser.add_argument("--camera", action="store_true")
     create_parser.add_argument("--heat", action="store_true")
@@ -41,6 +42,11 @@ def parse_arguments():
     search_parser.add_argument("--camera", action="store_true")
     search_parser.add_argument("--heat", action="store_true")
 
+    request_offer_parser = subparsers.add_parser("request-offer")
+    request_offer_parser.add_argument("--eurocode", required=True)
+    request_offer_parser.add_argument("--name", required=True)
+    request_offer_parser.add_argument("--phone", required=True)
+
     return parser.parse_args(sys.argv[1:])
 
 
@@ -50,7 +56,8 @@ def main():
         args = parse_arguments()
         if args.command == "create-windshield":
             logger.info("User has selected create windshield command.")
-            windshield_create_data = WindshieldCreateData(args.brand, args.model, args.year, args.sensor, args.camera, args.heat, args.eurocode) 
+            windshield_create_data = WindshieldCreateData(args.brand, args.model, args.start_year, args.end_year, args.sensor,
+             args.camera, args.heat, args.eurocode) 
             try:   
                 database.create_windshield(windshield_create_data)
             except EurocodeExists:
@@ -58,12 +65,19 @@ def main():
             else:
                 print("Windshield successfully created.") 
         elif args.command == "search-eurocode":
-            windshield_search_data = WindshieldSearchData(args.brand, args.model, args.year, args.sensor, args.camera, args.heat)
+            windshield_search_data = WindshieldSearchData(args.brand, args.model, args.year, args.sensor, args.camera,
+             args.heat)
             eurocode = database.search_eurocode(windshield_search_data)
             if eurocode is None:
                 print("Eurocode not found.")
             else:    
-                print(f"Eurocode for windshield is {eurocode}")        
+                print(f"Eurocode for windshield is {eurocode}") 
+        elif args.command == "request-offer":
+            windshield = database.search_windshield(args.eurocode) 
+            if windshield is None:
+                print("Eurocode not found")  
+            else:
+                print("Offer sent.")                
 
 
 if __name__ == "__main__": 
