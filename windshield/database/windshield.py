@@ -62,7 +62,7 @@ class Database:
     def search_eurocode(self, data: WindshieldSearchData) -> str | None:
         cursor = self._connection.cursor()
         result = cursor.execute("""SELECT eurocode FROM windshields 
-        WHERE brand = ? and model = ? and start_year <= ? and (end_year is NULL or end_year  >= ?) and sensor = ? 
+        WHERE brand = ? collate nocase and model = ? collate nocase and start_year <= ? and (end_year is NULL or end_year  >= ?) and sensor = ? 
         and camera = ? and heat = ?;
         """, (data.brand, data.model, data.year, data.year, data.sensor, data.camera, data.heat,))
         row = result.fetchone()

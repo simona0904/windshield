@@ -1,8 +1,9 @@
 import argparse
 import sys
 import sqlite3
-import pathlib
+from pathlib import Path
 import logging
+from .commands.import_excel import import_excel
 from windshield.database.windshield import Database, EurocodeExists, WindshieldCreateData, WindshieldSearchData
 
 
@@ -12,7 +13,7 @@ cli_handler.setLevel(logging.INFO)
 logger.addHandler(cli_handler)
 
 
-ROOT = pathlib.Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent
 DB_FILE = ROOT.joinpath("windshield.db")
 
 
@@ -21,10 +22,10 @@ def parse_arguments():
     # command este numele variabilei, create-windshield/search-eurocode sunt valorile pt command. 
     subparsers = parser.add_subparsers(dest="command",required=True)
     # se creaza comanda create-winshield:
-    create_parser = subparsers.add_parser("create-windshield")
+    create_parser = subparsers.add_parser("create-windshield") 
     # se creaza argumentele pt comanda create-windshield.
     create_parser.add_argument("--brand", required=True)
-    create_parser.add_argument("--model", required=True, help="modelul autoturismului")
+    create_parser.add_argument("--model", required=True)
     create_parser.add_argument("--start-year", required=True, type=int, help="an intre 1960 si anul curent")
     create_parser.add_argument("--end-year", type=int, help="an intre 1960 si anul curent")
     create_parser.add_argument("--sensor", action="store_true")
@@ -33,7 +34,8 @@ def parse_arguments():
     create_parser.add_argument("--eurocode", required=True)
 
     # se creaza comanda search-eurocode:
-    search_parser = subparsers.add_parser("search-eurocode")
+    search_parser = subparsers.add_parser("search-eurocode", 
+    help="ex. de utilizare:  python -m windshield.main search-eurocode --brand ford --model focus --year 2014 --sensor --camera --heat")
     # se creaza argumentele pt comanda search-eurocode.
     search_parser.add_argument("--brand", required=True)
     search_parser.add_argument("--model", required=True, help="modelul autoturismului")
@@ -42,11 +44,19 @@ def parse_arguments():
     search_parser.add_argument("--camera", action="store_true")
     search_parser.add_argument("--heat", action="store_true")
 
-    request_offer_parser = subparsers.add_parser("request-offer")
+    # se creaza comanda request-offer:
+    request_offer_parser = subparsers.add_parser("request-offer",
+    help="ex. de utilizare: python -m windshield.main request-offer --eurocode 8627AGACMVZ1C --name Andrei --phone 070000000")
+    # se creaza argumentele pt comanda request-offer.
     request_offer_parser.add_argument("--eurocode", required=True)
     request_offer_parser.add_argument("--name", required=True)
     request_offer_parser.add_argument("--phone", required=True)
 
+    # se creaza comanda import:
+    import_parser = subparsers.add_parser("import")
+    import_parser.add_argument("--path")                      # C:\Users\simon\OneDrive\Desktop
+    
+    # parseaza dintr-un string intr-un obiect args:
     return parser.parse_args(sys.argv[1:])
 
 
@@ -77,7 +87,10 @@ def main():
             if windshield is None:
                 print("Eurocode not found")  
             else:
-                print("Offer sent.")                
+                print("Offer sent.") 
+        elif args.command == "import":
+            import_excel(Path(args.path), database)   
+
 
 
 if __name__ == "__main__": 
