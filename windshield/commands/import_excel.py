@@ -5,7 +5,7 @@ from windshield.utils import parse_str_to_years, parse_str_to_equipment
 from windshield.database.windshield import WindshieldCreateData, EurocodeExists
 
 
-# functie pt comanda import
+# functie pt comanda import:
 def import_excel(file_path: Path, database: Database ):
     wb = load_workbook(file_path)
     sheet1 = wb["Sheet1"]

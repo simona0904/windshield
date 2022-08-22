@@ -1,9 +1,7 @@
-# functie care transforma din str '.00/01-05/09' intr-un start_year si end_year:
-# '.15/01-'
 
 from typing import Literal
 
-# functie care transforma din str years in start_year si end_year:
+# functie care transforma din str years '.00/01-05/09' in start_year si end_year:
 def parse_str_to_years(value: str) -> tuple[int, int | None]:
     start_year = int(value[1:3])
     start_year = 2000 + start_year if start_year < 30 else 1900 + start_year

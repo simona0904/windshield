@@ -3,15 +3,14 @@ import sys
 import sqlite3
 from pathlib import Path
 import logging
+from windshield.logger import configure_logger, LOGGER_NAME
+from windshield.commands.request_offer import send_request_offer_email
 from .commands.import_excel import import_excel
 from windshield.database.windshield import Database, EurocodeExists, WindshieldCreateData, WindshieldSearchData
 
 
-logger = logging.getLogger("windshield")
-cli_handler = logging.StreamHandler()
-cli_handler.setLevel(logging.INFO)
-logger.addHandler(cli_handler)
-
+configure_logger()
+logger = logging.getLogger(LOGGER_NAME)
 
 ROOT = Path(__file__).parent.parent
 DB_FILE = ROOT.joinpath("windshield.db")
@@ -22,7 +21,8 @@ def parse_arguments():
     # command este numele variabilei, create-windshield/search-eurocode sunt valorile pt command. 
     subparsers = parser.add_subparsers(dest="command",required=True)
     # se creaza comanda create-winshield:
-    create_parser = subparsers.add_parser("create-windshield") 
+    create_parser = subparsers.add_parser("create-windshield", 
+    help="python -m windshield.main create-windshield --brand ford --model focus --start-year 2002 --sensor --eurocode 3566ags") 
     # se creaza argumentele pt comanda create-windshield.
     create_parser.add_argument("--brand", required=True)
     create_parser.add_argument("--model", required=True)
@@ -63,6 +63,7 @@ def parse_arguments():
 def main(): 
     with sqlite3.connect(DB_FILE) as connection:
         database = Database(connection)
+        logger.info("Connected to database.")
         args = parse_arguments()
         if args.command == "create-windshield":
             logger.info("User has selected create windshield command.")
@@ -75,6 +76,7 @@ def main():
             else:
                 print("Windshield successfully created.") 
         elif args.command == "search-eurocode":
+            logger.info("User has selected search-eurocode command.")
             windshield_search_data = WindshieldSearchData(args.brand, args.model, args.year, args.sensor, args.camera,
              args.heat)
             eurocode = database.search_eurocode(windshield_search_data)
@@ -83,10 +85,12 @@ def main():
             else:    
                 print(f"Eurocode for windshield is {eurocode}") 
         elif args.command == "request-offer":
+            logger.info("User has selected request-offer command.")
             windshield = database.search_windshield(args.eurocode) 
             if windshield is None:
                 print("Eurocode not found")  
             else:
+                send_request_offer_email(windshield, args.name, args.phone)
                 print("Offer sent.") 
         elif args.command == "import":
             import_excel(Path(args.path), database)   
