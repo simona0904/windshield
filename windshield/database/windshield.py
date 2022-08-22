@@ -54,7 +54,7 @@ class Database:
             self._connection.commit()
         except sqlite3.IntegrityError:
             raise EurocodeExists()     
-        logger.info("Windshield inserted into database.")
+        
 
     def search_eurocode(self, data: WindshieldSearchData) -> str | None:
         cursor = self._connection.cursor()
