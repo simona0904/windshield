@@ -9,8 +9,7 @@ from windshield.database.windshield import WindshieldCreateData, EurocodeExists
 def import_excel(file_path: Path, database: Database ):
     wb = load_workbook(file_path)
     sheet1 = wb["Sheet1"]
-    for row in sheet1.iter_rows(min_row=2, values_only=True):
-        print(row)
+    for row in sheet1.iter_rows(min_row=2, values_only=True):   
         eurocode_without_00 = row[5][0:-2]
         start_year, end_year = parse_str_to_years(row[4])
         sensor, camera, heat = parse_str_to_equipment(eurocode_without_00)

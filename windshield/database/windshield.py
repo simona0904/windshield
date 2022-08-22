@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 import sqlite3
-import logging
 
-
-logger = logging.getLogger("windshield")
 
 @dataclass
 class Windshield:

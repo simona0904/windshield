@@ -88,12 +88,16 @@ def main():
             logger.info("User has selected request-offer command.")
             windshield = database.search_windshield(args.eurocode) 
             if windshield is None:
+                logger.warning("User tried to search eurocode that doesnt exist: %s", args.eurocode)
                 print("Eurocode not found")  
             else:
                 send_request_offer_email(windshield, args.name, args.phone)
                 print("Offer sent.") 
         elif args.command == "import":
-            import_excel(Path(args.path), database)   
+            try:
+                import_excel(Path(args.path), database)  
+            except Exception as e:
+                logger.error("Error when importing excel: %s", e)    
 
 
 
